@@ -12,9 +12,9 @@ Dask提供一种在大于内存的数据集上多核运行的方法。
 
 * **高阶集合：** Dask提供了高阶的Array，Bag和DataFrame, 它们模仿了NumPy，List和Pandas，但可以在不适合主内存的数据集上并行操作。 
     Dask的高阶集合是NumPy和Pandas在大型数据集的替代品。
-* **低阶计划程序：** Dask提供了动态任务计划程序，可并行执行任务图。 这些执行引擎为上述高阶集合提供支持，但也可以为用户定义的自定义工作负载提供支持。 这些调度程序的等待时间很短（大约1毫秒），并且努力在较小的内存占用空间中运行计算。 Dask的调度程序是在复杂情况或其他任务调度系统（如`Luigi`或`IPython parallel`）中直接使用`threading`或`multiprocessing`库的替代方法。
+* **低阶计划程序：** Dask提供了动态任务计划程序，可并行执行任务图。 这些执行引擎为上述高阶集合提供支持，但也可以为用户定义的自定义工作负载提供支持。 这些调度器的等待时间很短（大约1毫秒），并且努力在较小的内存占用空间中运行计算。 Dask的调度器是在复杂情况或其他任务调度系统（如`Luigi`或`IPython parallel`）中直接使用`threading`或`multiprocessing`库的替代方法。
 
-不同的用户在不同的级别上进行操作，但了解两者都有帮助。 本教程将在`dask.array`和`dask.dataframe`的高阶使用（偶数章节）和dask图和调度程序的低阶使用（奇数章节）之间进行交错。
+不同的用户在不同的级别上进行操作，但了解两者都有帮助。 本教程将在`dask.array`和`dask.dataframe`的高阶使用（偶数章节）和dask图和调度器的低阶使用（奇数章节）之间进行交错。
 
 ## 准备工作
 
@@ -51,7 +51,7 @@ Dask提供一种在大于内存的数据集上多核运行的方法。
 
 您可以从提供的Dockerfile中构建Docker映像。
 
-    $ docker build . # 浙江构建a)中相同的环境
+    $ docker build . # 这将构建a)中相同的环境
 
 运行一个容器，将ID替换为先前命令的输出值
 
@@ -100,7 +100,7 @@ Dask提供一种在大于内存的数据集上多核运行的方法。
 
 4. [Dataframe](04_dataframe.ipynb) - 对分布在集群中的许多Pandas Dataframe的并行操作。
 
-5. [分布式](05_distributed.ipynb) - Dask的集群调度程序，以及如何查看UI的详细信息。
+5. [分布式](05_distributed.ipynb) - Dask的集群调度器，以及如何查看UI的详细信息。
 
 6. [进阶分布式](06_distributed_advanced.ipynb) - 关于分布式计算的更多细节，包括如何调试。
 
