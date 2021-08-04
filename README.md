@@ -1,130 +1,109 @@
-# Dask Tutorial
+# Dask 教程
 
-This tutorial was last given at SciPy 2020 which was a virtual conference.
-[A video of the SciPy 2020 tutorial is available online](https://www.youtube.com/watch?v=EybGGLbLipI).
+本教程最后一次在 SciPy 2020上提供，这是一个虚拟会议。
+[SciPy 2020教程的视频可在线获取](https://www.youtube.com/watch?v=EybGGLbLipI).
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/dask/dask-tutorial/main?urlpath=lab)
 [![Build Status](https://github.com/dask/dask-tutorial/workflows/CI/badge.svg)](https://github.com/dask/dask-tutorial/actions?query=workflow%3ACI)
 
-Dask provides multi-core execution on larger-than-memory datasets.
+Dask提供一种在大于内存的数据集上多核运行的方法。
 
-We can think of dask at a high and a low level
+我们可以从高阶和低阶两个层次考虑：
 
-*  **High level collections:**  Dask provides high-level Array, Bag, and DataFrame
-   collections that mimic NumPy, lists, and Pandas but can operate in parallel on
-   datasets that don't fit into main memory.  Dask's high-level collections are
-   alternatives to NumPy and Pandas for large datasets.
-*  **Low Level schedulers:** Dask provides dynamic task schedulers that
-   execute task graphs in parallel.  These execution engines power the
-   high-level collections mentioned above but can also power custom,
-   user-defined workloads.  These schedulers are low-latency (around 1ms) and
-   work hard to run computations in a small memory footprint.  Dask's
-   schedulers are an alternative to direct use of `threading` or
-   `multiprocessing` libraries in complex cases or other task scheduling
-   systems like `Luigi` or `IPython parallel`.
+* **高阶集合：** Dask提供了高阶的Array，Bag和DataFrame, 它们模仿了NumPy，List和Pandas，但可以在不适合主内存的数据集上并行操作。 
+    Dask的高阶集合是NumPy和Pandas在大型数据集的替代品。
+* **低阶计划程序：** Dask提供了动态任务计划程序，可并行执行任务图。 这些执行引擎为上述高阶集合提供支持，但也可以为用户定义的自定义工作负载提供支持。 这些调度程序的等待时间很短（大约1毫秒），并且努力在较小的内存占用空间中运行计算。 Dask的调度程序是在复杂情况或其他任务调度系统（如`Luigi`或`IPython parallel`）中直接使用`threading`或`multiprocessing`库的替代方法。
 
-Different users operate at different levels but it is useful to understand
-both.  This tutorial will interleave between high-level use of `dask.array` and
-`dask.dataframe` (even sections) and low-level use of dask graphs and
-schedulers (odd sections.)
+不同的用户在不同的级别上进行操作，但了解两者都有帮助。 本教程将在`dask.array`和`dask.dataframe`的高阶使用（偶数章节）和dask图和调度程序的低阶使用（奇数章节）之间进行交错。
 
-## Prepare
+## 准备工作
 
-#### 1. You should clone this repository
+#### 1. 你需要克隆这个仓库
 
-    git clone http://github.com/dask/dask-tutorial
+    git clone http://github.com/IncubatorShokuhou/dask-tutorial
 
-and then install necessary packages.
-There are three different ways to achieve this, pick the one that best suits you, and ***only pick one option***.
-They are, in order of preference:
+然后安装必要的包。
+有三种方法可以安装这些包。选择最适合你的方法，且 ***只需选择其中一个***。
+他们分别是（按推荐顺序）: 
 
-#### 2a) Create a conda environment (preferred)
+#### 2a) 创建一个conda环境(推荐)
 
-In the main repo directory
+在主仓库目录
 
     conda env create -f binder/environment.yml
     conda activate dask-tutorial
     jupyter labextension install @jupyter-widgets/jupyterlab-manager
     jupyter labextension install @bokeh/jupyter_bokeh
 
-#### 2b) Install into an existing environment
+#### 2b) 在一个已有的环境中安装
 
-You will need the following core libraries
+您将需要以下核心库
 
     conda install numpy pandas h5py pillow matplotlib scipy toolz pytables snakeviz scikit-image dask distributed -c conda-forge
 
-You may find the following libraries helpful for some exercises
+您可能会发现以下库对某些练习有帮助
 
     conda install python-graphviz -c conda-forge
 
-Note that these options will alter your existing environment, potentially changing the versions of packages you already
-have installed.
+请注意，此选项将更改您的现有环境，可能会更改您已经安装的软件包的版本。
 
-#### 2c) Use Dockerfile
+#### 2c) 使用Dockerfile
 
-You can build a docker image from the provided Dockerfile.
+您可以从提供的Dockerfile中构建Docker映像。
 
-    $ docker build . # This will build using the same env as in a)
+    $ docker build . # 浙江构建a)中相同的环境
 
-Run a container, replacing the ID with the output of the previous command
+运行一个容器，将ID替换为先前命令的输出值
 
     $ docker run -it -p 8888:8888 -p 8787:8787 <container_id_or_tag>
 
-The above command will give an URL (`Like http://(container_id or 127.0.0.1):8888/?token=<sometoken>`) which
-can be used to access the notebook from browser. You may need to replace the given hostname with "localhost" or
-"127.0.0.1".
+上述命令会生成一个链接(`例如 http://(container_id or 127.0.0.1):8888/?token=<sometoken>`) ，可用于从浏览器访问notebook。 您可能需要用`localhost`或`127.0.0.1`替换为给定的主机名。
 
-#### You should follow only one of the options above!
+#### 你只需要执行上述选项中的一个!
 
-### Launch notebook
+### 启动notebook
 
-From the repo directory
+从仓库目录执行
 
     jupyter notebook
 
-Or
+或
 
     jupyter lab
 
-This was already done for method c) and does not need repeating.
+该步骤已在选项 c) 中执行，不需要再重复。
 
-## Links
+## 链接
 
-*  Reference
-    *  [Docs](https://dask.org/)
-    *  [Examples](https://examples.dask.org/)
-    *  [Code](https://github.com/dask/dask/)
-    *  [Blog](https://blog.dask.org/)
-*  Ask for help
-    *   [`dask`](http://stackoverflow.com/questions/tagged/dask) tag on Stack Overflow, for usage questions
-    *   [github issues](https://github.com/dask/dask/issues/new) for bug reports and feature requests
-    *   [gitter chat](https://gitter.im/dask/dask) for general, non-bug, discussion
-    *   Attend a live tutorial
+*  参考
+    *  [文档](https://dask.org/)
+    *  [示例](https://examples.dask.org/)
+    *  [代码](https://github.com/dask/dask/)
+    *  [博客](https://blog.dask.org/)
+*  求助
+    *   Stack Overflow上的[`dask`](http://stackoverflow.com/questions/tagged/dask)标签, 针对用法问题
+    *   [github issues](https://github.com/dask/dask/issues/new) 针对错误报告和功能请求
+    *   [gitter chat](https://gitter.im/dask/dask) 针对一般问题、非错误问题、讨论
+    *   参加现场教程
 
-## Outline
+## 大纲
 
-0. [Overview](00_overview.ipynb) - dask's place in the universe.
+0. [概述](00_overview.ipynb) - dask在宇宙中的地位。
 
-1. [Delayed](01_dask.delayed.ipynb) - the single-function way to parallelize general python code.
+1. [延迟执行](01_dask.delayed.ipynb) - 并行化一般python代码的单函数方法。
 
-1x. [Lazy](01x_lazy.ipynb) - some of the principles behind lazy execution, for the interested.
+1x. [惰性执行](01x_lazy.ipynb) - 惰性执行背后的一些原则，供感兴趣的人参考。
 
-2. [Bag](02_bag.ipynb) - the first high-level collection: a generalized iterator for use
-with a functional programming style and to clean messy data.
+2. [Bag](02_bag.ipynb) - 第一个高级集合：用于函数式编程风格和清理杂乱数据的通用迭代器。
 
-3. [Array](03_array.ipynb) - blocked numpy-like functionality with a collection of
-numpy arrays spread across your cluster.
+3. [Array](03_array.ipynb) - 分块化的类numpy功能，包含分布在集群中的 numpy 数组集合。
 
-7. [Dataframe](04_dataframe.ipynb) - parallelized operations on many pandas dataframes
-spread across your cluster.
+4. [Dataframe](04_dataframe.ipynb) - 对分布在集群中的许多Pandas Dataframe的并行操作。
 
-5. [Distributed](05_distributed.ipynb) - Dask's scheduler for clusters, with details of
-how to view the UI.
+5. [分布式](05_distributed.ipynb) - Dask的集群调度程序，以及如何查看UI的详细信息。
 
-6. [Advanced Distributed](06_distributed_advanced.ipynb) - further details on distributed
-computing, including how to debug.
+6. [进阶分布式](06_distributed_advanced.ipynb) - 关于分布式计算的更多细节，包括如何调试。
 
-7. [Dataframe Storage](07_dataframe_storage.ipynb) - efficient ways to read and write
-dataframes to disc.
+7. [Dataframe存储](07_dataframe_storage.ipynb) - 将Dataframe读写到磁盘的有效方法。
 
-8. [Machine Learning](08_machine_learning.ipynb) - applying dask to machine-learning problems.
+8. [机器学习](08_machine_learning.ipynb) - 将dask应用于机器学习问题。

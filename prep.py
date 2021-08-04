@@ -23,21 +23,20 @@ data_dir = os.path.abspath(os.path.join(here, 'data'))
 
 
 def parse_args(args=None):
-    parser = argparse.ArgumentParser(description='Downloads, generates and prepares data for the Dask tutorial.')
+    parser = argparse.ArgumentParser(description='为 Dask 教程下载、生成和准备数据。')
     parser.add_argument('--no-ssl-verify', dest='no_ssl_verify', action='store_true',
-                        default=False, help='Disables SSL verification.')
+                        default=False, help='禁用 SSL 验证。')
     parser.add_argument("--small", action="store_true", default=None,
-                        help="Whether to use smaller example datasets. Checks DASK_TUTORIAL_SMALL environment variable if not specified.")
-    parser.add_argument("-d", "--dataset", choices=DATASETS, help="Datasets to generate.", default="all")
+                        help="是否使用较小的示例数据集。 如果未指定，则检查 DASK_TUTORIAL_SMALL 环境变量。")
+    parser.add_argument("-d", "--dataset", choices=DATASETS, help="要生成的数据集。", default="all")
 
     return parser.parse_args(args)
 
 
 
 if not os.path.exists(data_dir):
-    raise OSError('data/ directory not found, aborting data preparation. ' \
-                  'Restore it with "git checkout data" from the base ' \
-                  'directory.')
+    raise OSError('数据/目录未找到，中止数据准备。 ' \
+                  '使用基本目录中的"git checkout data"恢复它。')
 
 
 def flights(small=None):
@@ -54,13 +53,13 @@ def flights(small=None):
         N = 10_000
 
     if not os.path.exists(flights_raw):
-        print("- Downloading NYC Flights dataset... ", end='', flush=True)
+        print("- 正在下载纽约市航班数据集...", end='', flush=True)
         url = sources.flights_url
         urllib.request.urlretrieve(url, flights_raw)
-        print("done", flush=True)
+        print("完成", flush=True)
 
     if not os.path.exists(flightdir):
-        print("- Extracting flight data... ", end='', flush=True)
+        print("- 提取飞行数据...", end='', flush=True)
         tar_path = os.path.join(data_dir, 'nycflights.tar.gz')
         with tarfile.open(tar_path, mode='r:gz') as flights:
             flights.extractall('data/')
@@ -73,22 +72,22 @@ def flights(small=None):
                 with open(path, 'w') as f:
                     f.writelines(lines)
 
-        print("done", flush=True)
+        print("完成", flush=True)
 
     if not os.path.exists(jsondir):
-        print("- Creating json data... ", end='', flush=True)
+        print("- 正在创建 json 数据...", end='', flush=True)
         os.mkdir(jsondir)
         for path in glob(os.path.join(data_dir, 'nycflights', '*.csv')):
             prefix = os.path.splitext(os.path.basename(path))[0]
             df = pd.read_csv(path, nrows=N)
             df.to_json(os.path.join(data_dir, 'flightjson', prefix + '.json'),
                        orient='records', lines=True)
-        print("done", flush=True)
+        print("完成", flush=True)
     else:
         return
 
     end = time.time()
-    print("** Created flights dataset! in {:0.2f}s**".format(end - start))
+    print("** 已创建飞行数据集! 在 {:0.2f}秒内完成**".format(end - start))
 
 def random_array(small=None):
     if small is None:
@@ -112,7 +111,7 @@ def random_array(small=None):
             dset[i: i + blocksize] = np.random.exponential(size=blocksize)
 
     t1 = time.time()
-    print("Created random data for array exercise in {:0.2f}s".format(t1 - t0))
+    print("在{:0.2f}秒内为数组练习创建随机数据".format(t1 - t0))
 
 
 def accounts_csvs(small=None):
@@ -138,7 +137,7 @@ def accounts_csvs(small=None):
                   index=False)
 
     t1 = time.time()
-    print("Created CSV accounts in {:0.2f}s".format(t1 - t0))
+    print("在{:0.2f}秒内创建完成accounts CSV文件".format(t1 - t0))
 
 
 def accounts_json(small=None):
@@ -163,7 +162,7 @@ def accounts_json(small=None):
             f.write(os.linesep.join(map(json.dumps, seq)).encode())
 
     t1 = time.time()
-    print("Created JSON accounts in {:0.2f}s".format(t1 - t0))
+    print("在{:0.2f}秒内创建完成accounts JSON文件".format(t1 - t0))
 
 
 def create_weather(small=None):
@@ -179,7 +178,7 @@ def create_weather(small=None):
 
     if not filenames:
         ws_dir = os.path.join(data_dir, 'weather-small')
-        raise ValueError('Did not find any hdf5 files in {}'.format(ws_dir))
+        raise ValueError('在{}中未找到任何hdf5文件'.format(ws_dir))
 
     if not os.path.exists(os.path.join(data_dir, 'weather-big')):
         os.mkdir(os.path.join(data_dir, 'weather-big'))
@@ -203,17 +202,17 @@ def create_weather(small=None):
         with h5py.File(out_fn, mode='w') as f:
             f.create_dataset('/t2m', data=y, chunks=chunks)
     t1 = time.time()
-    print("Created weather dataset in {:0.2f}s".format(t1 - t0))
+    print("在{:0.2f}秒内创建天气数据集".format(t1 - t0))
 
 
 def main(args=None):
     args = parse_args(args)
 
     if (args.no_ssl_verify):
-        print("- Disabling SSL Verification... ", end='', flush=True)
+        print("- 禁用 SSL 验证... ", end='', flush=True)
         import ssl
         ssl._create_default_https_context = ssl._create_unverified_context
-        print("done", flush=True)
+        print("完成", flush=True)
 
     if args.dataset == "random" or args.dataset == "all":
         random_array(args.small)
