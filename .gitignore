@@ -4,6 +4,7 @@
 *.png
 .ipynb_checkpoints
 *.gz
+!images/*
 data/accounts.*.csv
 data/accounts.h5
 data/random.hdf5
