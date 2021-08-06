@@ -62,7 +62,7 @@ def flights(small=None):
         print("- 提取飞行数据...", end='', flush=True)
         tar_path = os.path.join(data_dir, 'nycflights.tar.gz')
         with tarfile.open(tar_path, mode='r:gz') as flights:
-            flights.extractall('data/')
+            flights.extractall(data_dir)
 
         if small:
             for path in glob(os.path.join(data_dir, "nycflights", "*.csv")):
